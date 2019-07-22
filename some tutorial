@@ -7,3 +7,57 @@ https://www.nandland.com/articles/fpga-101-fpgas-for-beginners.html
 
 https://numato.com/kb/learning-fpga-verilog-beginners-guide-part-2-modules/
 
+https://blog.csdn.net/qq_32010099/article/details/81197260
+
+https://www.cnblogs.com/ninghechuan/p/7442851.html
+
+https://www.cnblogs.com/jianpeng5645/p/8617183.html
+
+https://www.cnblogs.com/aslmer/p/5786978.html
+
+http://blog.sina.com.cn/s/blog_539ee1ae0102xtod.html
+
+
+阻塞赋值和非阻塞赋值。呵呵，我也不知道当初发明硬件建模语言的人为啥要整出这样一些让人费解的术语。要知道，有些学术术语如果用大白话
+说实际上是很简单的，那些搞研究的人估计是为了故作高深，所以要发明一些新的让人看不懂的术语来显得自己好像水平很高。所以大家千
+万不要被术语给唬住了。为啥要用阻塞和非阻塞这两个术语来描述对组合逻辑电路和触发器的模拟，这个我也不明白。我
+只知道=和<=在Verilog中是如何使用的。=是用在always@(*)块和assign语句中写组合逻辑电路的。<=只用在always@(posedge clk)块中
+用来写寄存器。always@(*)和assign之间没啥区别，都生成组合逻辑电路。只是有时组合逻辑比较复杂，用assign语句一句话写不完时
+会用always@(*)。区别就是always@(*)块中被赋值的信号要被定义成reg，而assign中被赋值的信号则必须是wire，但它们却都是生成组合逻
+辑电路。这就是Verilog一点不严谨的地方。不过这也没啥大问题，就是容易把初学者搞糊涂。有人喜欢把组合电路和时序电路在代码中
+分开来写，比如在always@(*)中写NextState = 一堆组合逻辑，然后再在always@(posedge clk)中只写 State <=NextState。不过我嫌
+这样写罗索，所以在我写的代码中就只会出现always@(posedge clk) 和assign。
+
+ 
+
+可综合和不可综合可以直接理解为，可综合的就是用来写实际电路模块的，不可综合就是用来写仿真测试激励的。可综合的就是前
+面说的always@(posedge clk)，always@(*)，assign，再加上function块这几种语句。function块是用来描述纯组合电路的，
+是可综合的。比如你要在代码中经常用到求最大值这个功能，就可以写一个function [:] Max;。initial，task，for循环，#n延
+时，repeat(n)@等这些都只会在写测试激励时出现，是不可综合的。可综合的和不可综合的语句都能在测试激励中写。这样一说不就很清楚了。
+
+
+
+FPGA做图像处理的技巧都在Block Ram的使用上
+
+ 
+
+FPGA的最大优势就是能对数据进行并行流水线处理。而实现这一点的关键就是要用FPGA内部的Block Ram对数据进行边缓存边处理。注意，
+进行流水线处理是用不到DDR的，DDR没有Ram那么高的实时性，只能用来缓存大量数据。要知道FPGA接的DDR速度和容量是远没有CPU上接
+的DDR快的。所以要发挥FPGA并行流水线处理的优势，其所用的算法也必须并行流水线化。把CPU上的算法照搬到FPGA中，然后接个DDR当
+内存，这样的做法并不能发挥FPGA的优势。FPGA的优势是并行流水线。那什么样的算法可以并行流水线化呢？简单的说只需要顺序读取数
+据进行处理的算法都可以。比如像图像处理中用NxN的算子进行滤波，取边缘，膨胀腐蚀等。这些都是很适合用FPGA进行处理的。有些算法
+看似不是顺序读取数据的，但改造一下之后也可以。比如连通域识别，具体可见我的另一篇文章《FPGA实现的连通域识别算法升级》。
+
+ 
+
+那么用FPGA进行NxN的算子法图像处理具体是怎样实现的呢？以3x3的算子为例，3x3的算子要同时取3行的数据，所以先要用FPGA里
+面的Block Ram缓存上两行的数据。当这一行数据来的时候同时去读取Ram里缓存的上两行数据，并把这3行数据一起移入3x3的移位寄
+存器中，然后对这3x3个寄存器中的值进行你所需要的算子运算。之后再把这新一行的数据存回Ram中，原先最上面的那一行数据就被覆
+盖丢弃了。简单的说流程就是这样的，N行的算子只需要缓存N-1行数据。Block Ram是FPGA里最重要的资源，所以能省则省。
+
+--------------------- 
+作者：qq_32010099 
+来源：CSDN 
+原文：https://blog.csdn.net/qq_32010099/article/details/81197260 
+版权声明：本文为博主原创文章，转载请附上博文链接！
+
